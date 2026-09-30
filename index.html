@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#080b12" />
 <title>MLBB Professional Draft Coach</title>
-<link rel="stylesheet" href="styles.css?v=20261001g" />
+<link rel="stylesheet" href="styles.css?v=20261001h" />
 </head>
 <body>
 <div class="app">
   <header class="appbar">
-    <div class="brand"><div class="logo">M</div><div><strong>MLBB Professional Draft Coach</strong><span>Week 6+ pro-meta weighted • AI draft opponent</span></div></div>
+    <div class="brand"><div class="logo">M</div><div><strong>MLBB Professional Draft Coach</strong><span>Week-by-week pro-meta weighted • AI draft opponent</span></div></div>
     <div class="scope-wrap"><label>Data scope</label><select id="scopeSelect"><option value="Combined">Combined</option><option value="MPL PH">MPL PH Week 6+</option><option value="MPL ID">MPL ID Week 6+</option><option value="Asian Games 2026">Asian Games 2026</option></select></div>
   </header>
 
@@ -37,7 +37,7 @@
           <aside class="team-panel blue-panel"><h3>Blue Picks</h3><div id="bluePicks" class="pick-stack"></div></aside>
 
           <section class="center-panel">
-            <div class="coach-strip"><span id="userSidePill">USER SIDE: NOT SET</span><span id="modePill">MODE: TOURNAMENT</span><span id="metaPill">META: WEEK 6+ PRIORITY</span></div>
+            <div class="coach-strip"><span id="userSidePill">USER SIDE: NOT SET</span><span id="modePill">MODE: TOURNAMENT</span><span id="metaPill">META: WEEKLY RECENCY</span></div>
             <div id="roleTabs" class="role-tabs"></div>
             <div class="search-row"><input id="searchInput" placeholder="Search hero (optional)"/><button id="chooseSideBtn" class="btn">Choose Side</button><button id="startBtn" class="btn primary">Start Draft</button></div>
             <div id="heroGrid" class="hero-grid"></div>
@@ -55,7 +55,7 @@
       <section id="completeReport"></section>
     </section>
 
-    <section id="metaPage" class="page"><article class="card"><div class="card-title"><h2>Week 6+ Meta Board</h2><span>professional-data first</span></div><div id="metaContent"></div></article></section>
+    <section id="metaPage" class="page"><article class="card"><div class="card-title"><h2>Week-by-Week Meta Board</h2><span>newest completed week first</span></div><div id="metaContent"></div></article></section>
     <section id="heroesPage" class="page"><article class="card"><div class="card-title"><h2>Complete Hero Pool</h2><span id="directoryCount"></span></div><div id="heroDirectory" class="hero-grid directory"></div></article></section>
     <section id="sourcesPage" class="page"><article class="card"><div class="card-title"><h2>Data Provenance</h2><span>no fabricated stats</span></div><div id="sourcesContent"></div></article></section>
   </main>
@@ -68,11 +68,12 @@
 <div id="heroDrawer" class="drawer"><div class="drawer-card"><button id="closeDrawer" class="close">✕</button><div id="drawerBody"></div></div></div>
 <div id="toast" class="toast"></div>
 
-<script src="hero-roster.js?v=20261001g"></script>
-<script src="meta-data.js?v=20261001g"></script>
-<script src="app.js?v=20261001g"></script>
-<script src="hero-images.js?v=20261001g"></script>
-<script src="tournament-formats.js?v=20261001g"></script>
-<script src="team-neutral-coach.js?v=20261001g"></script>
+<script src="hero-roster.js?v=20261001h"></script>
+<script src="meta-data.js?v=20261001h"></script>
+<script src="app.js?v=20261001h"></script>
+<script src="hero-images.js?v=20261001h"></script>
+<script src="tournament-formats.js?v=20261001h"></script>
+<script src="team-neutral-coach.js?v=20261001h"></script>
+<script src="week-recency.js?v=20261001h"></script>
 </body>
 </html>
