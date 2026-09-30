@@ -3,55 +3,73 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<meta name="theme-color" content="#090b12" />
-<title>MLBB Competitive Draft Coach</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/shunnishitomi-max/mlbb@762eaf5cf0bf1c59ddf807fd0424b36e99bc5677/web/styles.css" />
+<meta name="theme-color" content="#080b12" />
+<title>MLBB Professional Draft Coach</title>
+<link rel="stylesheet" href="styles.css?v=20261001b" />
 </head>
 <body>
 <div class="app">
-  <div class="top-shell">
-    <div class="topbar">
-      <div class="home-dot">⌂</div>
-      <div class="urlbar"><span>MLBB Professional Draft Coach</span></div>
-      <div class="top-icons"><div class="iconbtn">＋</div><div class="iconbtn">AI</div><div class="iconbtn">⋮</div></div>
-    </div>
-    <div class="content">
-      <section id="draftPage" class="tabs-page active">
-        <div class="draft-shell">
-          <div class="ban-row"><div class="ban-track" id="blueBans"></div><div class="ban-track red" id="redBans"></div></div>
-          <div class="main-grid">
-            <div class="pick-column"><div class="side-tag">Blue Picks</div><div id="bluePicks"></div></div>
-            <div class="center-stage"><div class="center-inner">
-              <div class="stage-head">
-                <div class="stage-status"><h1 id="actionLabel">Choose your side to start</h1><p id="phaseLabel">Professional MLBB coach mock draft against AI</p></div>
-                <div class="chips"><span class="pill blue" id="userSidePill">USER SIDE: NOT SET</span><span class="pill" id="scopePill">SCOPE: COMBINED</span><span class="pill red" id="turnPill">WAITING</span></div>
-              </div>
-              <div class="tabs" id="tabs"></div>
-              <div class="searchline"><input id="search" placeholder="Optional hero search" /><select id="scopeSelect"><option value="Combined">Combined</option><option value="MPL PH">MPL PH</option><option value="MPL ID">MPL ID</option><option value="Asian Games 2026">Asian Games 2026</option></select></div>
-              <div class="hero-panel"><div class="hero-grid" id="heroGrid"></div></div>
-              <div class="bottom-actions"><div class="bottom-left"><button class="soft-btn primary" id="startBtn">▶ Start Draft</button><button class="soft-btn" id="sideBtn">👥 Choose Side</button><button class="soft-btn" id="autoBtn">🤖 AI Turn</button></div><div class="bottom-right"><button class="soft-btn small" id="undoBtn">↶ Undo</button><button class="soft-btn small" id="resetBtn">⟲ Reset</button></div></div>
-            </div></div>
-            <div class="pick-column"><div class="side-tag">Red Picks</div><div id="redPicks"></div></div>
-          </div>
+  <header class="appbar">
+    <div class="brand"><div class="logo">M</div><div><strong>MLBB Professional Draft Coach</strong><span>Week 6+ pro-meta weighted • AI draft opponent</span></div></div>
+    <div class="scope-wrap"><label>Data scope</label><select id="scopeSelect"><option value="Combined">Combined</option><option value="MPL PH">MPL PH Week 6+</option><option value="MPL ID">MPL ID Week 6+</option><option value="Asian Games 2026">Asian Games 2026</option></select></div>
+  </header>
+
+  <main>
+    <section id="draftPage" class="page active">
+      <div class="mode-tabs">
+        <button class="mode-tab active" data-mode="tournament">🏆 Tournament</button>
+        <button class="mode-tab" data-mode="ranked">⭐ Ranked Game</button>
+      </div>
+
+      <div id="rankedSetup" class="ranked-setup hidden">
+        <div class="ranked-copy"><strong>Ranked ban setup</strong><span>Select every banned hero before picks begin. Minimum 5, maximum 10.</span></div>
+        <div class="ranked-config"><label>Ban count <select id="rankedBanTarget"></select></label><span id="rankedBanCount">0 / 5 selected</span><button id="clearRankedBans" class="btn subtle">Clear bans</button></div>
+      </div>
+
+      <section class="draft-shell">
+        <div class="ban-head">
+          <div><span class="side-dot blue"></span><b>BLUE BANS</b><div id="blueBans" class="ban-track"></div></div>
+          <div class="draft-status"><small id="phaseLabel">TOURNAMENT • FIRST BAN PHASE</small><strong id="actionLabel">Choose your side</strong><span id="turnPill">WAITING</span></div>
+          <div><b>RED BANS</b><span class="side-dot red"></span><div id="redBans" class="ban-track"></div></div>
         </div>
-        <div class="info-grid">
-          <div class="panel"><h2>Draft Coach Recommendations</h2><div class="rec-list" id="recs"></div><div id="completeReport"></div></div>
-          <div class="panel"><h2>Dataset Status</h2><p id="datasetText" class="muted">Loading status…</p><div id="roleNeedBadges"></div><div id="coachFramework" class="framework"></div><div class="footer-note">The coach never fabricates professional statistics. Unsupported official values are shown as INSUFFICIENT DATA.</div></div>
+
+        <div class="draft-layout">
+          <aside class="team-panel blue-panel"><h3>Blue Picks</h3><div id="bluePicks" class="pick-stack"></div></aside>
+
+          <section class="center-panel">
+            <div class="coach-strip"><span id="userSidePill">USER SIDE: NOT SET</span><span id="modePill">MODE: TOURNAMENT</span><span id="metaPill">META: WEEK 6+ PRIORITY</span></div>
+            <div id="roleTabs" class="role-tabs"></div>
+            <div class="search-row"><input id="searchInput" placeholder="Search hero (optional)"/><button id="chooseSideBtn" class="btn">Choose Side</button><button id="startBtn" class="btn primary">Start Draft</button></div>
+            <div id="heroGrid" class="hero-grid"></div>
+            <div class="draft-actions"><button id="undoBtn" class="btn subtle">↶ Undo</button><button id="resetBtn" class="btn subtle">⟲ Reset</button><span id="heroCountLabel"></span></div>
+          </section>
+
+          <aside class="team-panel red-panel"><h3>Red Picks</h3><div id="redPicks" class="pick-stack"></div></aside>
         </div>
       </section>
-      <section id="metaPage" class="tabs-page"><div class="panel"><h2>Meta Dashboard</h2><div id="metaContent"></div></div></section>
-      <section id="heroesPage" class="tabs-page"><div class="panel"><h2>Hero Directory</h2><div class="hero-grid" id="heroDirectory"></div></div></section>
-      <section id="matchesPage" class="tabs-page"><div class="panel"><h2>Match Explorer</h2><div id="matchesContent" class="empty">No verified match records bundled yet.</div></div></section>
-      <section id="morePage" class="tabs-page"><div class="panel"><h2>More</h2><p class="muted">Professional mock drafting with side selection, automatic AI opponent turns, full hero roster support, and contextual draft analysis.</p><p id="methodNote" class="muted"></p></div></section>
-    </div>
-  </div>
+
+      <section class="lower-grid">
+        <article class="card"><div class="card-title"><h2>Professional Coach • Top 5</h2><span>recalculates every action</span></div><div id="recommendations" class="recs"></div></article>
+        <article class="card"><div class="card-title"><h2>Draft Intelligence</h2><span id="confidenceBadge">Confidence: —</span></div><div id="draftIntel"></div></article>
+      </section>
+      <section id="completeReport"></section>
+    </section>
+
+    <section id="metaPage" class="page"><article class="card"><div class="card-title"><h2>Week 6+ Meta Board</h2><span>professional-data first</span></div><div id="metaContent"></div></article></section>
+    <section id="heroesPage" class="page"><article class="card"><div class="card-title"><h2>Complete Hero Pool</h2><span id="directoryCount"></span></div><div id="heroDirectory" class="hero-grid directory"></div></article></section>
+    <section id="sourcesPage" class="page"><article class="card"><div class="card-title"><h2>Data Provenance</h2><span>no fabricated stats</span></div><div id="sourcesContent"></div></article></section>
+  </main>
 </div>
-<div class="navbar"><div class="navwrap"><button class="navbtn active" data-page="draftPage">Draft</button><button class="navbtn" data-page="metaPage">Meta</button><button class="navbtn" data-page="heroesPage">Heroes</button><button class="navbtn" data-page="matchesPage">Matches</button><button class="navbtn" data-page="morePage">More</button></div></div>
-<div class="modal" id="sideModal"><div class="modal-card"><h2>Choose your side</h2><p>Choose the side you want to control. The professional AI draft coach automatically controls the opposing side and recalculates after every pick and ban.</p><div class="side-picks"><button class="side-option blue" data-side="Blue"><b>Blue Side</b><span>You control Blue picks and bans.</span></button><button class="side-option red" data-side="Red"><b>Red Side</b><span>You control Red picks and bans.</span></button><button class="side-option gray" data-side="Spectator"><b>Spectator</b><span>AI drafts both teams.</span></button></div><div style="display:flex;gap:8px;justify-content:flex-end"><button class="soft-btn small" id="closeSide">Cancel</button><button class="soft-btn small primary" id="confirmSide">Start Mock Draft</button></div></div></div>
-<div class="drawer" id="drawer"><div class="drawer-card"><button class="closex" id="closeDrawer">✕</button><div id="drawerBody"></div></div></div><div class="toast" id="toast"></div>
-<script src="https://cdn.jsdelivr.net/gh/shunnishitomi-max/mlbb@762eaf5cf0bf1c59ddf807fd0424b36e99bc5677/web/hero-roster.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/shunnishitomi-max/mlbb@762eaf5cf0bf1c59ddf807fd0424b36e99bc5677/web/season-meta.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/shunnishitomi-max/mlbb@762eaf5cf0bf1c59ddf807fd0424b36e99bc5677/web/app.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/shunnishitomi-max/mlbb@762eaf5cf0bf1c59ddf807fd0424b36e99bc5677/web/meta-enhancements.js"></script>
+
+<nav class="bottom-nav"><button class="navbtn active" data-page="draftPage">Draft</button><button class="navbtn" data-page="metaPage">Meta</button><button class="navbtn" data-page="heroesPage">Heroes</button><button class="navbtn" data-page="sourcesPage">Sources</button></nav>
+
+<div id="sideModal" class="modal"><div class="modal-card"><h2>Choose your side</h2><p>Play a real mock draft against the professional AI coach. You control one side and the AI automatically handles the enemy side.</p><div class="side-options"><button data-side="Blue" class="side-choice blue-choice"><b>Blue Side</b><span>You draft Blue.</span></button><button data-side="Red" class="side-choice red-choice"><b>Red Side</b><span>You draft Red.</span></button><button data-side="Spectator" class="side-choice"><b>Spectator</b><span>AI drafts both sides.</span></button></div><div class="modal-actions"><button id="cancelSide" class="btn subtle">Cancel</button><button id="confirmSide" class="btn primary">Confirm</button></div></div></div>
+
+<div id="heroDrawer" class="drawer"><div class="drawer-card"><button id="closeDrawer" class="close">✕</button><div id="drawerBody"></div></div></div>
+<div id="toast" class="toast"></div>
+
+<script src="hero-roster.js?v=20261001b"></script>
+<script src="meta-data.js?v=20261001b"></script>
+<script src="app.js?v=20261001b"></script>
 </body>
 </html>
