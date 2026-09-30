@@ -1,47 +1,33 @@
-const HERO_IMAGE_INDEX='https://raw.githubusercontent.com/Ceplin03/database-mlbb.Mobile-Legends-Bang-Bang/master/hero.json';
-const HERO_IMAGE_BASE='https://raw.githubusercontent.com/Ceplin03/database-mlbb.Mobile-Legends-Bang-Bang/master/images-hero/';
+const HERO_IMAGE_CDN='https://cdn.jsdelivr.net/gh/Ceplin03/database-mlbb.Mobile-Legends-Bang-Bang@master/images-hero/';
+const HERO_IMAGE_RAW='https://raw.githubusercontent.com/Ceplin03/database-mlbb.Mobile-Legends-Bang-Bang/master/images-hero/';
 
-let heroPortraitMap=null;
-let heroPortraitHydrating=false;
-
-async function getHeroPortraitMap(){
-  if(heroPortraitMap)return heroPortraitMap;
-  const r=await fetch(HERO_IMAGE_INDEX,{cache:'force-cache'});
-  if(!r.ok)throw new Error('image index unavailable');
-  const data=await r.json();
-  heroPortraitMap=new Map((Array.isArray(data)?data:[]).map(x=>[
-    String(x.name_hero||'').trim().toLowerCase(),
-    x['images-hero']?HERO_IMAGE_BASE+encodeURIComponent(x['images-hero']).replace(/%2F/g,'/'):''
-  ]));
-  return heroPortraitMap;
+function heroPortraitFilename(name){
+  const specials={
+    "Chang'e":'chang27e.png',
+    'X.Borg':'xborg.png'
+  };
+  if(specials[name])return specials[name];
+  return String(name||'')
+    .trim()
+    .toLowerCase()
+    .replace(/\./g,'')
+    .replace(/\s+/g,'_')+'.png';
 }
 
-async function hydrateHeroImages(){
-  if(heroPortraitHydrating)return;
-  if(!Array.isArray(heroes)||!heroes.length)return false;
-  heroPortraitHydrating=true;
-  try{
-    const imageMap=await getHeroPortraitMap();
-    let updated=0;
-    for(const hero of heroes){
-      const mapped=imageMap.get(String(hero.name||'').trim().toLowerCase());
-      if(mapped){hero.icon_url=mapped;updated++}
-    }
-    renderAll();
-    const label=document.getElementById('heroCountLabel');
-    if(label)label.textContent=`${heroes.length} heroes loaded • ${updated} portraits mapped`;
-    return updated>0;
-  }catch(err){
-    console.warn('Hero portrait hydration failed',err);
-    return false;
-  }finally{
-    heroPortraitHydrating=false;
-  }
+function heroPortraitUrl(name,raw=false){
+  const file=heroPortraitFilename(name);
+  return (raw?HERO_IMAGE_RAW:HERO_IMAGE_CDN)+encodeURIComponent(file).replace(/%2F/g,'/');
 }
 
 function repairBrokenHeroImage(img,heroName){
-  if(!img||img.dataset.repaired==='1')return;
-  img.dataset.repaired='1';
+  if(!img)return;
+  // First failure: retry the same portrait from raw.githubusercontent.com.
+  if(img.dataset.source!=='raw'){
+    img.dataset.source='raw';
+    img.src=heroPortraitUrl(heroName,true);
+    return;
+  }
+  // Second failure: keep the app usable with a single-letter fallback.
   const card=img.closest('.hero-face,.rec-face,.drawer-face,.ban-token');
   if(card){
     img.remove();
@@ -49,27 +35,32 @@ function repairBrokenHeroImage(img,heroName){
   }
 }
 
-const originalHeroImg=heroImg;
+// Always render a portrait immediately. Do not wait for the optional metadata
+// feed, because the hero grid is drawn before that async request completes.
 heroImg=function(hero,cls=''){
-  if(hero?.icon_url){
-    const safeName=String(hero.name||'').replace(/'/g,'&#39;');
-    return `<img class="${cls}" src="${esc(hero.icon_url)}" alt="${esc(hero.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="repairBrokenHeroImage(this,'${safeName}')">`;
-  }
-  return esc(hero?.name?.[0]||'?');
+  const name=String(hero?.name||'');
+  const src=heroPortraitUrl(name,false);
+  const safeName=name.replace(/'/g,'&#39;');
+  return `<img class="${cls}" src="${src}" alt="${esc(name)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-source="cdn" onerror="repairBrokenHeroImage(this,'${safeName}')">`;
 };
 
-// app.js begins loading heroes before this extension is evaluated. Wait until the
-// roster actually exists, then apply the portrait map. This fixes the race that
-// previously caused hydration to run while heroes was still an empty array.
-let portraitAttempts=0;
-const portraitTimer=setInterval(async()=>{
-  portraitAttempts++;
-  if(Array.isArray(heroes)&&heroes.length){
-    clearInterval(portraitTimer);
-    await hydrateHeroImages();
-  }else if(portraitAttempts>=50){
-    clearInterval(portraitTimer);
-  }
-},200);
+function forcePortraitRefresh(){
+  if(!Array.isArray(heroes)||!heroes.length)return false;
+  // Store the deterministic source on the hero objects too so every renderer,
+  // including ban and pick slots, has a concrete image URL available.
+  for(const hero of heroes)hero.icon_url=heroPortraitUrl(hero.name,false);
+  renderAll();
+  const label=document.getElementById('heroCountLabel');
+  if(label)label.textContent=`${heroes.length} heroes loaded • portraits enabled`;
+  return true;
+}
 
-window.addEventListener('load',()=>setTimeout(hydrateHeroImages,300));
+// app.js starts its async hero load before this extension runs. Poll briefly and
+// repaint as soon as the roster exists. tournament-formats.js also calls
+// renderAll(), so the synchronous heroImg override already applies immediately.
+let portraitAttempts=0;
+const portraitTimer=setInterval(()=>{
+  portraitAttempts++;
+  if(forcePortraitRefresh()||portraitAttempts>=60)clearInterval(portraitTimer);
+},200);
+window.addEventListener('load',()=>setTimeout(forcePortraitRefresh,400));
